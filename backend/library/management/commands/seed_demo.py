@@ -1,4 +1,3 @@
-"""Наполнение демо-данными: 5 пользователей, 15 произведений, 20 экземпляров, 10 передач, 10 отзывов."""
 import io
 from datetime import timedelta
 
@@ -69,7 +68,9 @@ class Command(BaseCommand):
         if opts["reset"]:
             for model in (Loan, Review, ReadingEntry, Copy, Book):
                 model.objects.all().delete()
-            User.objects.filter(username__in=["admin", "moder", "anna", "boris", "clara"]).delete()
+            User.objects.filter(
+                username__in=["admin", "moder", "Eldar", "Atabek", "Sosat", "anna", "boris", "clara"]
+            ).delete()
         elif Book.objects.exists() or User.objects.filter(username="admin").exists():
             raise CommandError("База уже содержит данные. Запустите с --reset или используйте чистую базу.")
 
@@ -78,10 +79,10 @@ class Command(BaseCommand):
 
         admin = User.objects.create_superuser("admin", "admin@example.com", "admin12345")
         moder = User.objects.create_user("moder", "moder@example.com", "demo12345", role=User.Role.MODERATOR)
-        anna = User.objects.create_user("anna", "anna@example.com", "demo12345", first_name="Анна", last_name="Иванова")
-        boris = User.objects.create_user("boris", "boris@example.com", "demo12345", first_name="Борис", last_name="Петров")
-        clara = User.objects.create_user("clara", "clara@example.com", "demo12345", first_name="Клара", last_name="Сидорова")
-        members = [anna, boris, clara]
+        eldar = User.objects.create_user("Eldar", "eldar@example.com", "demo12345", first_name="Eldar")
+        atabek = User.objects.create_user("Atabek", "atabek@example.com", "demo12345", first_name="Atabek")
+        sosat = User.objects.create_user("Sosat", "sosat@example.com", "demo12345", first_name="Sosat")
+        members = [eldar, atabek, sosat]
 
         books = []
         for i, (title, author, genre, desc) in enumerate(BOOKS):
@@ -102,16 +103,16 @@ class Command(BaseCommand):
 
         S = Loan.Status
         plan = [
-            (0, boris, S.RETURNED, -20, -6),
-            (1, anna, S.RETURNED, -15, -3),
-            (2, anna, S.HANDED_OVER, 7, None),
-            (3, clara, S.HANDED_OVER, -5, None),
-            (4, clara, S.ACCEPTED, 10, None),
-            (5, boris, S.PENDING, 12, None),
-            (5, anna, S.PENDING, 14, None),
-            (6, boris, S.REJECTED, 9, None),
-            (7, clara, S.CANCELLED, 9, None),
-            (15, clara, S.PENDING, 8, None),
+            (0, atabek, S.RETURNED, -20, -6),
+            (1, eldar, S.RETURNED, -15, -3),
+            (2, eldar, S.HANDED_OVER, 7, None),
+            (3, sosat, S.HANDED_OVER, -5, None),
+            (4, sosat, S.ACCEPTED, 10, None),
+            (5, atabek, S.PENDING, 12, None),
+            (5, eldar, S.PENDING, 14, None),
+            (6, atabek, S.REJECTED, 9, None),
+            (7, sosat, S.CANCELLED, 9, None),
+            (15, sosat, S.PENDING, 8, None),
         ]
         for copy_idx, borrower, st, due_offset, returned_offset in plan:
             loan = Loan.objects.create(
@@ -128,25 +129,25 @@ class Command(BaseCommand):
             loan.save()
 
         reviews = [
-            (anna, 0, 5, "Перечитываю каждый год."),
-            (boris, 0, 4, "Сильно, хотя вторая половина слабее."),
-            (clara, 0, 5, "Лучшее, что я читала."),
-            (anna, 3, 5, "Страшно актуально."),
-            (boris, 4, 4, "Мир проработан отлично."),
-            (clara, 4, 3, "Тяжело читать начало."),
-            (anna, 6, 5, "Короткая и очень тёплая."),
-            (boris, 9, 4, "Классический детектив."),
-            (clara, 11, 5, "Уютное приключение."),
-            (boris, 14, 2, "Реклама! Купите курс дёшево!!!"),
+            (eldar, 0, 5, "Перечитываю каждый год."),
+            (atabek, 0, 4, "Сильно, хотя вторая половина слабее."),
+            (sosat, 0, 5, "Лучшее, что я читала."),
+            (eldar, 3, 5, "Страшно актуально."),
+            (atabek, 4, 4, "Мир проработан отлично."),
+            (sosat, 4, 3, "Тяжело читать начало."),
+            (eldar, 6, 5, "Короткая и очень тёплая."),
+            (atabek, 9, 4, "Классический детектив."),
+            (sosat, 11, 5, "Уютное приключение."),
+            (atabek, 14, 2, "Реклама! Купите курс дёшево!!!"),
         ]
         for user, bi, score, text in reviews:
             Review.objects.create(user=user, book=books[bi], score=score, text=text, is_hidden=(text.startswith("Реклама")))
 
         first_of_month = today.replace(day=1)
         entries = [
-            (anna, 0, "read", today), (anna, 3, "read", first_of_month), (anna, 4, "reading", None),
-            (boris, 0, "read", first_of_month), (boris, 9, "read", today - timedelta(days=45)), (boris, 12, "want", None),
-            (clara, 0, "read", today), (clara, 11, "reading", None), (clara, 7, "want", None),
+            (eldar, 0, "read", today), (eldar, 3, "read", first_of_month), (eldar, 4, "reading", None),
+            (atabek, 0, "read", first_of_month), (atabek, 9, "read", today - timedelta(days=45)), (atabek, 12, "want", None),
+            (sosat, 0, "read", today), (sosat, 11, "reading", None), (sosat, 7, "want", None),
         ]
         for user, bi, st, fin in entries:
             ReadingEntry.objects.create(user=user, book=books[bi], status=st, finished_at=fin)
@@ -156,4 +157,4 @@ class Command(BaseCommand):
             f"передач {Loan.objects.count()}, отзывов {Review.objects.count()}."
         ))
         self.stdout.write("Аккаунты: admin/admin12345 (администратор), moder/demo12345 (модератор), "
-                          "anna|boris|clara/demo12345 (участники).")
+                          "Eldar|Atabek|Sosat/demo12345 (участники).")

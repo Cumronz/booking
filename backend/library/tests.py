@@ -9,7 +9,7 @@ from library.models import Book, Copy, Loan, Review
 
 class BaseCase(APITestCase):
     def setUp(self):
-        mk = lambda name, **kw: User.objects.create_user(name, password="pass12345", **kw)  # noqa: E731
+        mk = lambda name, **kw: User.objects.create_user(name, password="pass12345", **kw)
         self.anna, self.boris, self.clara = mk("anna"), mk("boris"), mk("clara")
         self.moder = mk("moder", role=User.Role.MODERATOR)
         self.admin = User.objects.create_superuser("root", "r@example.com", "pass12345")

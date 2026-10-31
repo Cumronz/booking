@@ -17,7 +17,6 @@ export function useApi<T>(path: string | null, query?: Query) {
       .catch((e) => { if (!cancelled) setError(errorText(e)); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
   const reload = useCallback(() => setTick((t) => t + 1), []);
